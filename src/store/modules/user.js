@@ -5,6 +5,7 @@ import { resetRouter } from '@/router'
 const state = {
   token: getToken(),
   name: '',
+  nickname: '',
   avatar: ''
 }
 
@@ -14,6 +15,9 @@ const mutations = {
   },
   SET_NAME: (state, name) => {
     state.name = name
+  },
+  SET_NICKNAME: (state, nickname) => {
+    state.nickname = nickname
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
@@ -25,10 +29,16 @@ const actions = {
   login({ commit }, userInfo) {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+      login({ name: username.trim(), password: password }).then(response => {
+        const { name, nickname, avatar, token } = response.data
+        sessionStorage.setItem('userInfo', JSON.stringify(response.data))
+        commit('SET_NAME', name)
+        commit('SET_NICKNAME', nickname)
+        sessionStorage.setItem('nickname', nickname)
+        commit('SET_AVATAR', avatar)
+        sessionStorage.setItem('avatar', avatar)
+        commit('SET_TOKEN', token)
+        setToken(token)
         resolve()
       }).catch(error => {
         reject(error)
@@ -40,7 +50,7 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
-        const { data } = response
+        const data = response
 
         if (!data) {
           reject('Verification failed, please Login again.')
@@ -60,7 +70,9 @@ const actions = {
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
+      logout({
+        name: JSON.parse(sessionStorage.getItem('userInfo') || '{}').name
+      }).then(() => {
         commit('SET_TOKEN', '')
         removeToken()
         resetRouter()
