@@ -74,7 +74,7 @@ module.exports = {
         'handle-callback-err': [2, '^(err|error)$'],
         indent: [
             2,
-            2,
+            4,
             {
                 SwitchCase: 1
             }
@@ -221,7 +221,7 @@ module.exports = {
                 allowTemplateLiterals: true
             }
         ],
-        semi: [2, 'never'],
+        semi: [2, 'always'],
         'semi-spacing': [
             2,
             {
